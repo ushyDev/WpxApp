@@ -7,16 +7,15 @@ import * as Notifications from 'expo-notifications';
 import * as Permissions from 'expo-permissions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Linking from 'expo-linking'
+import {Configuration, Colors} from '../config'
 
 
 WebBrowser.maybeCompleteAuthSession();
 
-
 let config = {
   issuer: 'https://accounts.google.com',
   scopes: ['openid', 'profile', 'email'],
-  clientId: '705147091498-44ib933gnlvnqlhstk1qm1d9ha53vbov.apps.googleusercontent.com',
-  // clientId: '705147091498-tvsl32j6h87cidr73j5hga1djugm395m.apps.googleusercontent.com',
+  clientId: Configuration.clientId,
 };
 
 let StorageKey = '@MyApp:CustomGoogleOAuthKey';
@@ -52,7 +51,7 @@ export default class LoginScreen extends Component {
       headers: {Accept: 'application/json', 'Content-Type': 'application/json' },
       body: JSON.stringify({
       mode: 'otp', 
-      secret_key: '2bPC4xW7qztgfA6%ZTs08dmuY@RkSpMi',
+      secret_key: Configuration.secret_key,
       user_password: queryParams.user_password,
       user_email: queryParams.user_email
     })
@@ -71,7 +70,7 @@ export default class LoginScreen extends Component {
       headers: {Accept: 'application/json', 'Content-Type': 'application/json' },
       body: JSON.stringify({
       mode: 'password', 
-      secret_key: '2bPC4xW7qztgfA6%ZTs08dmuY@RkSpMi',
+      secret_key: Configuration.secret_key,
       user_password: this.state.password,
       user_email: this.state.email,
       register: 0
@@ -142,7 +141,7 @@ export default class LoginScreen extends Component {
       headers: {Accept: 'application/json', 'Content-Type': 'application/json' },
       body: JSON.stringify({
       mode: 'google', 
-      secret_key: '2bPC4xW7qztgfA6%ZTs08dmuY@RkSpMi',
+      secret_key: Configuration.secret_key,
       user_password: authState.idToken,
       ext_user_id: userInfo.id,
       user_email: userInfo.email
@@ -208,7 +207,7 @@ export default class LoginScreen extends Component {
   fbLog = async () => {
     try {
       await Facebook.initializeAsync({
-        appId: '481706463227775',
+        appId: Configuration.facebookAppId,
       });
       const {
         type,
@@ -229,7 +228,7 @@ export default class LoginScreen extends Component {
           headers: {Accept: 'application/json', 'Content-Type': 'application/json' },
           body: JSON.stringify({
           mode: 'facebook', 
-          secret_key: '2bPC4xW7qztgfA6%ZTs08dmuY@RkSpMi',
+          secret_key: Configuration.secret_key,
           user_password: token,
           ext_user_id: responseJson.id,
           user_email: responseJson.email
@@ -281,7 +280,7 @@ export default class LoginScreen extends Component {
             placeholderTextColor="#003f5c"
             onChangeText={text => this.setState({email:text})}
             autoCorrect={false}
-            autoCapitalize={false}
+            autoCapitalize='none'
             />
         </View>
         <View style={styles.inputView} >
@@ -290,7 +289,10 @@ export default class LoginScreen extends Component {
             style={styles.inputText}
             placeholder="Password..." 
             placeholderTextColor="#003f5c"
-            onChangeText={text => this.setState({password:text})}/>
+            onChangeText={text => this.setState({password:text})}
+            autoCorrect={false}
+            autoCapitalize='none'
+            />
         </View>
         <TouchableOpacity>
           <Text style={styles.forgot}>Forgot Password?</Text>
@@ -330,38 +332,38 @@ export default class LoginScreen extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: 'white',
+        backgroundColor: Colors.background,
         alignItems: 'center',
         justifyContent: 'center',
       },
       logo:{
         fontWeight:"bold",
         fontSize:42,
-        color:"#3b3c70",
+        color: Colors.primary,
         marginBottom:40
       },
       inputView:{
         width:"80%",
-        backgroundColor:"white",
+        backgroundColor: Colors.background,
         borderRadius:25,
         height:50,
         marginBottom:20,
         justifyContent:"center",
         padding:20,
         borderWidth: 0.5,
-        borderColor: '#bfbfbf'
+        borderColor: Colors.gray
       },
       inputText:{
         height:50,
         color:"black"
       },
       forgot:{
-        color:"#3b3c70",
+        color: Colors.primary,
         fontSize:11
       },
       loginBtn:{
         width:"80%",
-        backgroundColor:"#3b3c70",
+        backgroundColor: Colors.primary,
         borderRadius:25,
         height:50,
         alignItems:"center",
@@ -371,7 +373,7 @@ const styles = StyleSheet.create({
       },
       googleBtn:{
         width:"80%",
-        backgroundColor:"#ededed",
+        backgroundColor: "#ededed",
         borderRadius:25,
         height:50,
         alignItems:"center",
@@ -385,7 +387,7 @@ const styles = StyleSheet.create({
         backgroundColor:"rgba(29, 64, 222,0.2)",
         borderRadius:25,
         height:50,
-        alignItems:"center",
+        alignItems: "center",
         justifyContent:"center",
         marginTop:5,
         marginBottom:10,
@@ -393,14 +395,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
       },
       loginText:{
-        color:"white"
+        color: Colors.white
       },
       loginGoogleText:{
-        color:"black",
+        color: Colors.black,
         marginLeft: 10
       },
       create:{
-        color:"#3b3c70",
+        color: Colors.primary,
         fontWeight: 'bold'
       },
       orContener:{

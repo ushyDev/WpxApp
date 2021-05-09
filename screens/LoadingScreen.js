@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as AppAuth from 'expo-app-auth';
+import { Configuration } from '../config'
 
 
 
@@ -14,9 +15,7 @@ let StorageKeyPassword = '@MyApp:CustomPasswordOAuthKey';
 let config = {
   issuer: 'https://accounts.google.com',
   scopes: ['openid', 'profile', 'email'],
-  /* This is the CLIENT_ID generated from a Firebase project */
-  clientId: '705147091498-44ib933gnlvnqlhstk1qm1d9ha53vbov.apps.googleusercontent.com',
-  // clientId: '705147091498-tvsl32j6h87cidr73j5hga1djugm395m.apps.googleusercontent.com',
+  clientId: Configuration.clientId,
 };
 
 export default class LoadingScreen extends Component {
@@ -35,14 +34,11 @@ async  componentDidMount(){
 
 
       if(googleLog !== null){
-        console.log('Google LOGOWANIE')
         let cachedAuth = await this.getCachedAuthAsync();
         if (cachedAuth && !this.state.authState){
           this.setState({authState: cachedAuth})
         }
       }else if(fbLog !== null){
-        console.log('Facebook Logowanie')
-
         let cachedAuth = await this.getCachedAuthAsyncFb();
         if (cachedAuth && !this.state.authState){
           this.setState({authState: cachedAuth})
@@ -53,7 +49,6 @@ async  componentDidMount(){
         this.props.navigation.navigate('main', {url: authState})
       }
       else{
-        console.log('Niezalogowany uzytkownik')
         this.props.navigation.navigate('login')
       }
   }
@@ -61,8 +56,7 @@ async  componentDidMount(){
   getCachedAuthAsyncFb = async () => {
     let value = await AsyncStorage.getItem(StorageKeyFb);
     let authState = JSON.parse(value);
-    console.log('getCachedAuthAsyncFBBBB', authState);
-  
+
     if (authState) {
       if (this.checkIfTokenExpired(authState)) {
         console.log('token expired is niewazny')
@@ -83,7 +77,6 @@ async  componentDidMount(){
   getCachedAuthAsync = async () => {
   let value = await AsyncStorage.getItem(StorageKey);
   let authState = JSON.parse(value);
-  console.log('getCachedAuthAsync', authState);
 
   if (authState) {
     if (this.checkIfTokenExpired(authState)) {
@@ -134,7 +127,7 @@ async  componentDidMount(){
       headers: {Accept: 'application/json', 'Content-Type': 'application/json' },
       body: JSON.stringify({
       mode: 'google', 
-      secret_key: '2bPC4xW7qztgfA6%ZTs08dmuY@RkSpMi',
+      secret_key: Configuration.secret_key,
       user_password: authState.idToken,
       ext_user_id: userInfo.id,
       user_email: userInfo.email
@@ -156,7 +149,7 @@ async  componentDidMount(){
       headers: {Accept: 'application/json', 'Content-Type': 'application/json' },
       body: JSON.stringify({
       mode: 'facebook', 
-      secret_key: '2bPC4xW7qztgfA6%ZTs08dmuY@RkSpMi',
+      secret_key: Configuration.secret_key,
       user_password: authState.token,
       ext_user_id: authState.id,
       user_email: authState.email
