@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "demoWojciech",
+    "slug": "demoWojciech",
+    "facebookScheme": "fb481706463227775",
+    "facebookAppId": "481706463227775",
+    "facebookDisplayName": "DemoWPX",
+    "version": "1.0.0",
+    "scheme": "wpxapp",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "host.exp.exponent"
+    },
+    "android": {
+       "useNextNotificationsApi": true,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "package": "host.exp.exponent"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "notification": {
+      "icon": "./assets/not.png"
+    }
+  }
+}
