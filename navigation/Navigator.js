@@ -1,34 +1,35 @@
-import { createAppContainer, createSwitchNavigator } from 'react-navigation';
-import LoginScreen from '../screens/LoginScreen';
-import MainScreen from '../screens/MainScreen';
-import LoadingScreen from '../screens/LoadingScreen';
-import * as Linking from 'expo-linking'
-import React from 'react';
+import { createAppContainer, createSwitchNavigator } from "react-navigation";
+import LoginScreen from "../screens/LoginScreen";
+import MainScreen from "../screens/MainScreen";
+import LoadingScreen from "../screens/LoadingScreen";
+import * as Linking from "expo-linking";
+import React from "react";
 
-
-const MainNavigator = createSwitchNavigator({
+const MainNavigator = createSwitchNavigator(
+  {
     loading: LoadingScreen,
     login: LoginScreen,
     main: MainScreen,
-    
-    },{
-        mode: 'card',
-        animationEnabled: true, 
-        initialRouteName: 'loading' ,
-        defaultNavigationOptions: {
-            header: null, 
-                     
-    }})
-    
-    const AppContainer = createAppContainer(MainNavigator)
+  },
+  {
+    mode: "card",
+    animationEnabled: true,
+    initialRouteName: "loading",
+    defaultNavigationOptions: {
+      header: null,
+    },
+  }
+);
 
-    export default () => {
+const AppContainer = createAppContainer(MainNavigator);
 
-        const prefix = Linking.makeUrl('screens/login/+/signon/info',{
-            user_email: 'user_email', user_password: 'user_passwoed'
-        })
+export default () => {
+  const prefix = Linking.makeUrl("screens/login/+/signon/info", {
+    user_email: "user_email",
+    user_password: "user_passwoed",
+  });
 
-        console.log(prefix)
+  console.log(prefix);
 
-        return <AppContainer uriPrefix={prefix}/>
-    }
+  return <AppContainer uriPrefix={prefix} />;
+};

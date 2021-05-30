@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "demoWojciech",
-    "slug": "demoWojciech",
+    "name": "WPX",
+    "slug": "WPX",
     "facebookScheme": "fb481706463227775",
     "facebookAppId": "481706463227775",
     "facebookDisplayName": "DemoWPX",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "scheme": "wpxapp",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -17,26 +17,29 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "host.exp.exponent"
     },
     "android": {
-       "useNextNotificationsApi": true,
+      "useNextNotificationsApi": true,
+      "icon": "./assets/iconNot.png",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "host.exp.exponent"
+      "googleServicesFile": "./google-services.json",
+      "package": "wpx.app.pl"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "notification": {
-      "icon": "./assets/not.png"
+      "icon": "./assets/iconNot.png",
+      "color": "#FFFFFF",
+      "iosDisplayInForeground": true,
+      "androidMode": "default"
     }
   }
 }
