@@ -14,7 +14,6 @@ import * as Facebook from "expo-facebook";
 import * as AppAuth from "expo-app-auth";
 import * as WebBrowser from "expo-web-browser";
 import * as Notifications from "expo-notifications";
-import * as Permissions from "expo-permissions";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Linking from "expo-linking";
 import { Configuration, Colors } from "../config";
@@ -28,10 +27,11 @@ let config = {
 };
 
 //Storage Keys
-let StorageKey = "@MyApp:CustomGoogleOAuthKey";
+let StorageKeyGoogle = "@MyApp:CustomGoogleOAuthKey";
 let StorageKeyFb = "@MyApp:CustomFacebookOAuthKey";
 let StorageKeyPassword = "@MyApp:CustomPasswordOAuthKey";
 
+//Notifications Options
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -58,73 +58,11 @@ export default class LoginScreen extends Component {
     };
   }
 
-  urlRedicted = (url) => {
-    if (!url) return;
-    let { path, queryParams } = Linking.parse(url);
-
-    const requestOptions = {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        mode: "otp",
-        secret_key: Configuration.secret_key,
-        user_password: queryParams.user_password,
-        user_email: queryParams.user_email,
-        nf_expo_token: this.state.token,
-      }),
-    };
-
-    fetch("http://buddypress.var.ovh/wpx-prepareuser/", requestOptions)
-      .then((response) => response.json())
-      .then((data) => {
-        this.props.navigation.navigate("main", { url: data.data.signon_url });
-      });
-  };
-
-  loginPassword = () => {
-    const requestOptions = {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        mode: "password",
-        secret_key: Configuration.secret_key,
-        user_password: this.state.password,
-        user_email: this.state.email,
-        register: 0,
-        nf_expo_token: this.state.token,
-      }),
-    };
-
-    fetch("http://buddypress.var.ovh/wpx-prepareuser/", requestOptions)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success === true) {
-          this.cacheAuthAsyncPassword(data.data.signon_url);
-          this.props.navigation.navigate("main", { url: data.data.signon_url });
-        } else {
-          console.log(data.data);
-        }
-      });
-  };
-
-  cacheAuthAsyncPassword = async (authState) => {
-    return await AsyncStorage.setItem(
-      StorageKeyPassword,
-      JSON.stringify(authState)
-    );
-  };
-
-  // Tylko w wersji produkcyjnej
   componentDidMount() {
     this.registerForPushNotificationsAsync();
   }
 
+  // Token for notifications (only in prod version)
   registerForPushNotificationsAsync = async () => {
     if (Constants.isDevice) {
       const {
@@ -157,6 +95,71 @@ export default class LoginScreen extends Component {
     }
   };
 
+  //Login after email verification
+  urlRedicted = (url) => {
+    if (!url) return;
+    let { path, queryParams } = Linking.parse(url);
+
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        mode: "otp",
+        secret_key: Configuration.secret_key,
+        user_password: queryParams.user_password,
+        user_email: queryParams.user_email,
+        nf_expo_token: this.state.token,
+      }),
+    };
+
+    fetch("http://buddypress.var.ovh/wpx-prepareuser/", requestOptions)
+      .then((response) => response.json())
+      .then((data) => {
+        this.props.navigation.navigate("main", { url: data.data.signon_url });
+      });
+  };
+
+  //Login with mode password
+  loginPassword = () => {
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        mode: "password",
+        secret_key: Configuration.secret_key,
+        user_password: this.state.password,
+        user_email: this.state.email,
+        register: 0,
+        nf_expo_token: this.state.token,
+      }),
+    };
+
+    fetch("http://buddypress.var.ovh/wpx-prepareuser/", requestOptions)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success === true) {
+          this.cacheAuthAsyncPassword(data.data.signon_url);
+          this.props.navigation.navigate("main", { url: data.data.signon_url });
+        } else {
+          console.log(data.data);
+        }
+      });
+  };
+
+  //Save token to AsyncStorage
+  cacheAuthAsyncPassword = async (authState) => {
+    return await AsyncStorage.setItem(
+      StorageKeyPassword,
+      JSON.stringify(authState)
+    );
+  };
+
   fetchUserInfo = async (token) => {
     const response = await fetch("https://www.googleapis.com/userinfo/v2/me", {
       method: "GET",
@@ -169,7 +172,8 @@ export default class LoginScreen extends Component {
     return await response.json();
   };
 
-  signInAsync = async () => {
+  //SignIn with google mode
+  signInAsyncGoogle = async () => {
     let authState = await AppAuth.authAsync(config);
     await this.cacheAuthAsync(authState);
     this.setState({ loading: true });
@@ -200,15 +204,13 @@ export default class LoginScreen extends Component {
       });
   };
 
+  
   cacheAuthAsync = async (authState) => {
-    return await AsyncStorage.setItem(StorageKey, JSON.stringify(authState));
+    return await AsyncStorage.setItem(StorageKeyGoogle, JSON.stringify(authState));
   };
 
-  cacheAuthAsyncFb = async (authState) => {
-    return await AsyncStorage.setItem(StorageKeyFb, JSON.stringify(authState));
-  };
-
-  fbLog = async () => {
+  //SignIn with facebook mode
+  signInAsyncFacebook = async () => {
     try {
       await Facebook.initializeAsync({
         appId: Configuration.facebookAppId,
@@ -267,6 +269,11 @@ export default class LoginScreen extends Component {
     }
   };
 
+  cacheAuthAsyncFb = async (authState) => {
+    return await AsyncStorage.setItem(StorageKeyFb, JSON.stringify(authState));
+  };
+
+  //Open register Browser
   handleBrowserLogin = async () => {
     let result = await WebBrowser.openBrowserAsync(
       "http://buddypress.var.ovh/register/"
@@ -275,6 +282,7 @@ export default class LoginScreen extends Component {
   };
 
   render() {
+    //Depp linking
     Linking.addEventListener("url", (event) => {
       this.urlRedicted(event.url);
     });
@@ -337,7 +345,7 @@ export default class LoginScreen extends Component {
         <TouchableOpacity
           style={styles.googleBtn}
           onPress={async () => {
-            const _authState = await this.signInAsync();
+            const _authState = await this.signInAsyncGoogle();
 
             this.setState({ authState: _authState });
           }}
@@ -348,7 +356,10 @@ export default class LoginScreen extends Component {
           />
           <Text style={styles.loginGoogleText}>Continue with Google</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.fbBtn} onPress={() => this.fbLog()}>
+        <TouchableOpacity
+          style={styles.fbBtn}
+          onPress={() => this.signInAsyncFacebook()}
+        >
           <Image
             style={{ width: 30, height: 30 }}
             source={require("../assets/fblogo.png")}

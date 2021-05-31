@@ -23,6 +23,7 @@
       "bundleIdentifier": "host.exp.exponent"
     },
     "android": {
+      "enableDangerousExperimentalLeanBuilds": true,
       "useNextNotificationsApi": true,
       "icon": "./assets/iconNot.png",
       "adaptiveIcon": {
