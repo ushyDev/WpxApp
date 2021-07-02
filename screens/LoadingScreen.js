@@ -1,6 +1,8 @@
-import React, { Component } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as AppAuth from "expo-app-auth";
+
+import React, { Component } from "react";
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Configuration } from "../config";
 import Indicator from "../components/Indicator";
 
@@ -119,7 +121,7 @@ export default class LoadingScreen extends Component {
       }),
     };
 
-    fetch("http://buddypress.var.ovh/wpx-prepareuser/", requestOptions)
+    fetch(Configuration.urlWebView + "/wpx-prepareuser/", requestOptions)
       .then((response) => response.json())
       .then((data) => {
         this.setState({ loading: false });
@@ -143,11 +145,10 @@ export default class LoadingScreen extends Component {
       }),
     };
 
-    fetch("http://buddypress.var.ovh/wpx-prepareuser/", requestOptions)
+    fetch(Configuration.urlWebView + "/wpx-prepareuser/", requestOptions)
       .then((response) => response.json())
       .then((data) => {
         this.setState({ loading: false });
-        console.log(data);
         this.props.navigation.navigate("main", { url: data.data.signon_url });
       });
   };

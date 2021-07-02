@@ -1,22 +1,26 @@
-import React, { Component } from "react";
+import * as AppAuth from "expo-app-auth";
+import * as Facebook from "expo-facebook";
+import * as Google from "expo-google-app-auth";
+import * as Linking from "expo-linking";
+import * as Notifications from "expo-notifications";
+import * as WebBrowser from "expo-web-browser";
+
 import {
-  View,
-  Text,
+  ActivityIndicator,
+  Image,
+  Platform,
   StyleSheet,
+  Text,
   TextInput,
   TouchableOpacity,
-  Image,
-  ActivityIndicator,
-  Platform,
+  View,
 } from "react-native";
-import Constants from "expo-constants";
-import * as Facebook from "expo-facebook";
-import * as AppAuth from "expo-app-auth";
-import * as WebBrowser from "expo-web-browser";
-import * as Notifications from "expo-notifications";
+import { Configuration, ImageAssets, Texts } from "../../config";
+import React, { Component } from "react";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as Linking from "expo-linking";
-import { Configuration, Colors } from "../config";
+import Constants from "expo-constants";
+import styles from "./styles";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -79,7 +83,6 @@ export default class LoginScreen extends Component {
         return;
       }
       const token = (await Notifications.getExpoPushTokenAsync()).data;
-      console.log(token);
       this.setState({ token: token });
     } else {
       alert("Must use physical device for Push Notifications");
@@ -115,7 +118,7 @@ export default class LoginScreen extends Component {
       }),
     };
 
-    fetch("http://buddypress.var.ovh/wpx-prepareuser/", requestOptions)
+    fetch(Configuration.urlWebView + "/wpx-prepareuser/", requestOptions)
       .then((response) => response.json())
       .then((data) => {
         this.props.navigation.navigate("main", { url: data.data.signon_url });
@@ -140,14 +143,14 @@ export default class LoginScreen extends Component {
       }),
     };
 
-    fetch("http://buddypress.var.ovh/wpx-prepareuser/", requestOptions)
+    fetch(Configuration.urlWebView + "/wpx-prepareuser/", requestOptions)
       .then((response) => response.json())
       .then((data) => {
         if (data.success === true) {
           this.cacheAuthAsyncPassword(data.data.signon_url);
           this.props.navigation.navigate("main", { url: data.data.signon_url });
         } else {
-          console.log(data.data);
+          //make alert
         }
       });
   };
@@ -170,6 +173,28 @@ export default class LoginScreen extends Component {
       },
     });
     return await response.json();
+  };
+
+  //new google login
+  signInWithGoogleAsync = async () => {
+    try {
+      const result = await Google.logInAsync({
+        androidClientId:
+          "818839509895-ofq76sn4ic8cahc2dedlgql0cr7c2ork.apps.googleusercontent.com",
+        iosClientId:
+          "818839509895-uvp7mg3mhbejmqje83fvkbsrj8385mcm.apps.googleusercontent.com", //tu jeszcze trzeba zmienic na standolone appp
+        scopes: ["profile", "email"],
+      });
+
+      if (result.type === "success") {
+        this.onSignIn(result);
+        return result.accessToken;
+      } else {
+        return { cancelled: true };
+      }
+    } catch (e) {
+      return { error: true };
+    }
   };
 
   //SignIn with google mode
@@ -196,7 +221,7 @@ export default class LoginScreen extends Component {
       }),
     };
 
-    fetch("http://buddypress.var.ovh/wpx-prepareuser/", requestOptions)
+    fetch(Configuration.urlWebView + "/wpx-prepareuser/", requestOptions)
       .then((response) => response.json())
       .then((data) => {
         this.setState({ loading: false });
@@ -204,9 +229,11 @@ export default class LoginScreen extends Component {
       });
   };
 
-  
   cacheAuthAsync = async (authState) => {
-    return await AsyncStorage.setItem(StorageKeyGoogle, JSON.stringify(authState));
+    return await AsyncStorage.setItem(
+      StorageKeyGoogle,
+      JSON.stringify(authState)
+    );
   };
 
   //SignIn with facebook mode
@@ -252,17 +279,16 @@ export default class LoginScreen extends Component {
           }),
         };
 
-        fetch("http://buddypress.var.ovh/wpx-prepareuser/", requestOptions)
+        fetch(Configuration.urlWebView + "/wpx-prepareuser/", requestOptions)
           .then((response) => response.json())
           .then((data) => {
             this.setState({ loading: false });
-            console.log(data.data);
             this.props.navigation.navigate("main", {
               url: data.data.signon_url,
             });
           });
       } else {
-        // type === 'cancel'
+        // make alert
       }
     } catch ({ message }) {
       alert(`Facebook Login Error: ${message}`);
@@ -276,7 +302,7 @@ export default class LoginScreen extends Component {
   //Open register Browser
   handleBrowserLogin = async () => {
     let result = await WebBrowser.openBrowserAsync(
-      "http://buddypress.var.ovh/register/"
+      Configuration.urlWebView + "/register/"
     );
     this.setState({ webBrowserLoaded: result });
   };
@@ -300,13 +326,13 @@ export default class LoginScreen extends Component {
             size="large"
           />
         )}
-        <Image source={require("../assets/logowpx.png")} />
-        <Text style={styles.logo}>Welcome to WPX</Text>
+        <Image source={ImageAssets.logoMain} />
+        <Text style={styles.logo}>{Texts.welcomeMain}</Text>
 
         <View style={styles.inputView}>
           <TextInput
             style={styles.inputText}
-            placeholder="Email..."
+            placeholder={Texts.email}
             placeholderTextColor="#003f5c"
             onChangeText={(text) => this.setState({ email: text })}
             autoCorrect={false}
@@ -317,7 +343,7 @@ export default class LoginScreen extends Component {
           <TextInput
             secureTextEntry
             style={styles.inputText}
-            placeholder="Password..."
+            placeholder={Texts.password}
             placeholderTextColor="#003f5c"
             onChangeText={(text) => this.setState({ password: text })}
             autoCorrect={false}
@@ -325,20 +351,20 @@ export default class LoginScreen extends Component {
           />
         </View>
         <TouchableOpacity>
-          <Text style={styles.forgot}>Forgot Password?</Text>
+          <Text style={styles.forgot}>{Texts.forgotPassword}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.loginBtn}
           onPress={() => this.loginPassword()}
         >
-          <Text style={styles.loginText}>Login</Text>
+          <Text style={styles.loginText}>{Texts.login}</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={this.handleBrowserLogin}>
-          <Text style={styles.create}>Create an Account</Text>
+          <Text style={styles.create}>{Texts.createAccount}</Text>
         </TouchableOpacity>
         <View style={styles.orContener}>
           <View style={styles.borderline}></View>
-          <Text style={styles.or}>OR</Text>
+          <Text style={styles.or}>{Texts.or}</Text>
           <View style={styles.borderline}></View>
           <View></View>
         </View>
@@ -352,9 +378,9 @@ export default class LoginScreen extends Component {
         >
           <Image
             style={{ width: 25, height: 25 }}
-            source={require("../assets/googlelogo.png")}
+            source={ImageAssets.logoGoogle}
           />
-          <Text style={styles.loginGoogleText}>Continue with Google</Text>
+          <Text style={styles.loginGoogleText}>{Texts.buttonGoogle}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.fbBtn}
@@ -362,108 +388,11 @@ export default class LoginScreen extends Component {
         >
           <Image
             style={{ width: 30, height: 30 }}
-            source={require("../assets/fblogo.png")}
+            source={ImageAssets.logoFb}
           />
-          <Text style={styles.loginGoogleText}>Continue with Facebook</Text>
+          <Text style={styles.loginGoogleText}>{Texts.buttonGoogle}</Text>
         </TouchableOpacity>
       </View>
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logo: {
-    fontWeight: "bold",
-    fontSize: 42,
-    color: Colors.primary,
-    marginBottom: 40,
-  },
-  inputView: {
-    width: "80%",
-    backgroundColor: Colors.background,
-    borderRadius: 25,
-    height: 50,
-    marginBottom: 20,
-    justifyContent: "center",
-    padding: 20,
-    borderWidth: 0.5,
-    borderColor: Colors.gray,
-  },
-  inputText: {
-    height: 50,
-    color: "black",
-  },
-  forgot: {
-    color: Colors.primary,
-    fontSize: 11,
-  },
-  loginBtn: {
-    width: "80%",
-    backgroundColor: Colors.primary,
-    borderRadius: 25,
-    height: 50,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  googleBtn: {
-    width: "80%",
-    backgroundColor: "#ededed",
-    borderRadius: 25,
-    height: 50,
-    alignItems: "center",
-    marginTop: 40,
-    marginBottom: 0,
-    flexDirection: "row",
-    justifyContent: "center",
-  },
-  fbBtn: {
-    width: "80%",
-    backgroundColor: "rgba(29, 64, 222,0.2)",
-    borderRadius: 25,
-    height: 50,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 5,
-    marginBottom: 10,
-    flexDirection: "row",
-    justifyContent: "center",
-  },
-  loginText: {
-    color: Colors.white,
-  },
-  loginGoogleText: {
-    color: Colors.black,
-    marginLeft: 10,
-  },
-  create: {
-    color: Colors.primary,
-    fontWeight: "bold",
-  },
-  orContener: {
-    width: "80%",
-    flexDirection: "row",
-    marginTop: 20,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  borderline: {
-    borderWidth: 0.5,
-    width: "40%",
-    height: 0.5,
-    backgroundColor: "#a6a6a6",
-    borderColor: "#a6a6a6",
-  },
-  or: {
-    color: "#a6a6a6",
-    fontWeight: "bold",
-    marginHorizontal: 10,
-  },
-});

@@ -4,7 +4,6 @@ import { WebView } from "react-native-webview";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Indicator from "../components/Indicator";
 
-
 //Storage
 let StorageKey = "@MyApp:CustomGoogleOAuthKey";
 let StorageKeyFb = "@MyApp:CustomFacebookOAuthKey";
@@ -56,9 +55,8 @@ export default class MainScreen extends Component {
       <View style={{ flex: 1, justifyContent: "center" }}>
         <WebView
           injectedJavaScript={INJECTEDJAVASCRIPT} //disable zoom
-          scrollEnabled={false} //disable zoom
+          // scrollEnabled={false} //disable zoom
           source={{ uri: this.props.navigation.getParam("url") }}
-          onLoadStart={() => this.hideSpiner()}
           style={{ marginTop: 30, flex: 1 }}
           ref={this.WEBVIEW_REF}
           onNavigationStateChange={this.onNavigationStateChange.bind(this)}

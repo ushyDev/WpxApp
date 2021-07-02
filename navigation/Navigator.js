@@ -1,8 +1,10 @@
+import * as Linking from "expo-linking";
+
 import { createAppContainer, createSwitchNavigator } from "react-navigation";
+
+import LoadingScreen from "../screens/LoadingScreen";
 import LoginScreen from "../screens/LoginScreen";
 import MainScreen from "../screens/MainScreen";
-import LoadingScreen from "../screens/LoadingScreen";
-import * as Linking from "expo-linking";
 import React from "react";
 
 const MainNavigator = createSwitchNavigator(
@@ -26,10 +28,8 @@ const AppContainer = createAppContainer(MainNavigator);
 export default () => {
   const prefix = Linking.makeUrl("screens/login/+/signon/info", {
     user_email: "user_email",
-    user_password: "user_passwoed",
+    user_password: "user_password",
   });
-
-  console.log(prefix);
 
   return <AppContainer uriPrefix={prefix} />;
 };

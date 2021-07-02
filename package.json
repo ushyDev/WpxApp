@@ -12,7 +12,7 @@
     "@react-native-community/masked-view": "0.1.10",
     "expo": "~40.0.0",
     "expo-app-auth": "~9.3.0",
-    "expo-application": "~2.4.1",
+    "expo-application": "^3.1.2",
     "expo-auth-session": "~3.0.0",
     "expo-constants": "~9.3.3",
     "expo-facebook": "~9.1.0",
